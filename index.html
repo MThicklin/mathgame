@@ -1,24 +1,13 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>
-    Math Quest Mini Game - All Battle
-  </title>
-  <link type="text/css" href="mathgame.css" rel="stylesheet">
-</head>
-
+<title>
+ Math Quest Mini Game - All Battle
+</title>
 <body onload="startGame();">
-   <div class="w3-container w3-row" id="gameArea">
-    <!-- <canvas class="w3-container w3-row" id="animArea"></canvas> -->
-    <div class="w3-container w3-row" id="probArea"></div>
-    <div class="w3-container w3-row" id="gridArea"></div>
-    <div class="w3-container w3-row" id="scoreArea">
-      <div class="w3-container w3-col box" id="hero_box"></div>
-      <div class="w3-container w3-col box" id="enem_box"></div>
-    </div>
+ <div id="gameArea" class="wrapper">
+  <!-- <canvas id="animArea"></canvas> -->
+  <div id="probArea" class="problem"></div>
+  <div id="gridAreal0"></div>
+  <div id="scorArea" class="score">
+   <div class="box" id="hero_box"></div>
+   <div class="box" id="enem_box"></div>
   </div>
-</body>
-<script src="animation.js"></script>
-<script src="quiz.js"></script>
+ </div>
