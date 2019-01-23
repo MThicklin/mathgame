@@ -1,14 +1,20 @@
+/* 1/22 Only thing to add now is animations. */
 var lvl = {
  l0: {
-  steps: 4 //numbers inside a grid.
+  steps: 4, //Numbers inside a grid.
+  answLim: 10, //Limit for the problem.
+  parts: 2 //How many numbers are in a problem.
  },
  l1: {
-  steps: 9
+  steps: 9,
+  answLim: 10,
+  parts: 2
  },
  l2: {
-  steps: 16
- },
- parts: 2 //how many numbers are in a problem.
+  steps: 16,
+  answLim: 10,
+  parts: 2
+ }
 };
 
 var heart = {
@@ -37,7 +43,7 @@ var chara = {
   mage: {
    math: "*",
    hits:
-    "2" /*Hits is how many strikes a heart can take, if changed here, change in enemhit() / herohit()*/,
+    "2" /*Hits: amount of strikes a heart can take, if changed here, change in enemhit() / herohit()*/,
    lives: "2" /*Lives is how many hearts are left, 0 is a life*/,
    pic: {
     name: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/349822/mage.png"
@@ -88,6 +94,7 @@ function startGame() {
 
 function createGrid() {
  "use strict";
+ debugger;
  for (var t = 0; t < currLvl.steps; t++) {
   var box = document.createElement("div");
   box.id = t;
@@ -97,51 +104,54 @@ function createGrid() {
   });
   document.getElementById("gridAreal0").appendChild(box);
  }
- random();
-}
-
-function random() {
- "use strict";
-  numArray.answ.length=0;
-  numArray.prob.length=0;
-  numArray.rand.length=0;
- 
- for (var i = 0; i < currLvl.steps; i++) {
-  var answEntry = Math.round(Math.random() * 10) + 1;
-  numArray.rand.push(answEntry);
-  document.getElementById(i).innerHTML = numArray.rand[i];
- }
  prob();
 }
 
 function prob() {
  "use strict";
- 
- for (var i = 0; i <= lvl.parts; i++) {
-  var probNum = Math.round(Math.random() * 10) + 1;
+ numArray.answ.length = 0;
+ numArray.prob.length = 0;
+ numArray.rand.length = 0; //may need to move this later[1]
+ var op = charaArray[Math.floor(Math.random() * charaArray.length)];
+ var probNum = 0;
+ for (var i = 0; i < currLvl.parts; i++) {
+  probNum = Math.round(Math.random() * currLvl.answLim + 1);
   numArray.prob.push(probNum);
  }
- var op = charaArray[Math.floor(Math.random() * charaArray.length)];
- let problem = numArray.prob[0] + op + numArray.prob[1];
- document.getElementById("probArea").innerHTML = problem;
- answ(problem, op);
+ document.getElementById("probArea").innerHTML =
+  numArray.prob[0] + op + numArray.prob[1];
+ random(op);
 }
 
-function answ(problem, op) {
+function random(op) {
  "use strict";
- console.log("answ, problem: ", problem);
- console.log("answ, numArray: ", numArray);
- var answ = Math.floor(Math.random()*numArray.rand.length)
- var prob1 = Number(numArray.prob[0]);
- var prob2 = Number(numArray.prob[1]);
- var answer = eval(prob1 + op + prob2);
- console.log("answ, op ", op);
- numArray.answ.push(answer);
- numArray.rand.splice([answ],1,answer);
+ var answNum = 0;
+ var deciNum = 0;
+ var answMin = numArray.answ[0] - currLvl.answLim;
+ var answMax = numArray.answ[0] + currLvl.answLim;
+ var fullAnswer = eval(numArray.prob[0] + op + numArray.prob[1]);
+ for (var i = 0; i < currLvl.steps; i++) {
+  if (op != chara.hero.pala.math) {
+   answNum = Math.round(Math.random() * currLvl.answLim + 1);
+   numArray.rand.splice(i, 1, answNum);
+   numArray.answ.push(fullAnswer);
+  } else {
+   deciNum = Math.floor(Math.random() * (1000 - currLvl.answLim) + 100) / 100;
+   numArray.rand.splice(i, 1, deciNum);
+   var answer = fullAnswer.toFixed(2);
+   numArray.answ.push(answer);
+  }
+  document.getElementById(i).innerHTML = numArray.rand[i];
+ }
+ answ();
+}
+
+function answ(op) {
+ "use strict";
+ var answ = Math.floor(Math.random() * numArray.rand.length);
+ console.log("answ, answ: ", numArray);
+ numArray.rand.splice([answ], 1, numArray.answ[0]);
  document.getElementById(answ).innerHTML = numArray.rand[answ];
- console.log("answ-after, answer: ", answer);
- console.log("answ-after, numArray: ", numArray);
- return answer;
 }
 
 function hearts() {
@@ -165,19 +175,15 @@ function hearts() {
  }
 }
 
-function checkAnswer(id, answer) {
+function checkAnswer(id) {
  "use strict";
- console.log("checkAnsw, answer: ", answer);
-
  console.log("checkAnsw, numArray: ", numArray);
  var AnswId = document.getElementById(id).innerHTML;
- console.log("checkAnsw, AnswId ", AnswId);
+ console.log("checkAnsw, AnswId: ", AnswId);
  if (numArray.answ[0] != AnswId) {
-  console.log("wrong! id: ", id);
   enemHit();
   return;
  } else {
-  console.log("right! id: ", id);
   heroHit();
   return;
  }
@@ -191,10 +197,11 @@ function heroHit() {
   alert("You Win!");
   location.reload(); /*Exit code for return to stage to be added*/
  } else if (chara.enem.gobl.hits === 1) {
-  document.getElementById("eHeart" + chara.enem.gobl.lives).src = heart.half.pic;
+  document.getElementById("eHeart" + chara.enem.gobl.lives).src =
+   heart.half.pic;
   numArray.length = 0;
   console.log("heroHit, elseif, numArray: ", numArray);
-  random();
+  prob();
   return chara.enem.gobl.hits;
  } else if (chara.enem.gobl.hits === 0) {
   document.getElementById("eHeart" + chara.enem.gobl.lives).src = heart.mt.pic;
@@ -202,7 +209,7 @@ function heroHit() {
   chara.enem.gobl.hits = 2;
   numArray.length = 0;
   console.log("heroHit, 2nd elseif, numArray: ", numArray);
-  random();
+  prob();
   return chara.enem.gobl.hits;
  } else if (chara.enem.gobl.lives >= 1) {
   document.getElementById("eHeart" + chara.enem.gobl.lives).src = heart.mt.pic;
@@ -211,7 +218,7 @@ function heroHit() {
   chara.enem.gobl.hits = 2;
   numArray.length = 0;
   console.log("heroHit, 3rd else if, numArray: ", numArray);
-  random();
+  prob();
   return chara.enem.gobl.hits && chara.enem.gobl.lives;
  } else {
   return;
@@ -226,7 +233,8 @@ function enemHit() {
   alert("You Lose!");
   location.reload(); /*Exit code for return to stage to be added*/
  } else if (chara.hero.mage.hits === 1) {
-  document.getElementById("hHeart" + chara.hero.mage.lives).src = heart.half.pic;
+  document.getElementById("hHeart" + chara.hero.mage.lives).src =
+   heart.half.pic;
   return chara.hero.mage.hits;
  } else if (chara.hero.mage.hits === 0) {
   document.getElementById("hHeart" + chara.hero.mage.lives).src = heart.mt.pic;
@@ -238,7 +246,7 @@ function enemHit() {
   document.getElementById("hero_hit_box").id = "nearDeath";
   chara.hero.mage.lives--;
   chara.hero.mage.hits = 2;
-  random();
+  prob();
   return chara.hero.mage.hits && chara.hero.mage.lives;
  } else {
   return;
